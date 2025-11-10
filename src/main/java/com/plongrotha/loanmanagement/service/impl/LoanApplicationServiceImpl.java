@@ -1,5 +1,6 @@
 package com.plongrotha.loanmanagement.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -97,5 +98,26 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
         return loanApplications.stream()
                 .filter(application -> application.getLoanType() == loanType)
                 .toList();
+    }
+
+    @Override
+    public List<LoanApplication> createApplicationsBulk(List<LoanApplication> loanApplications) {
+        List<LoanApplication> saveApplications = new ArrayList<>();
+        for (LoanApplication loanApplication : loanApplications) {
+            saveApplications.add(createNewLoanApplication(loanApplication));
+        }
+        return saveApplications;
+    }
+
+    @Override
+    public LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus) {
+        LoanApplication application = loanApplicationRepository.findById(applicationId).orElseThrow(
+                () -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
+
+        if (application.getApplicationStatus() == ApplicationStatus.PENDING) {
+            application.setApplicationStatus(newStatus);
+        }
+
+        return loanApplicationRepository.save(application);
     }
 }

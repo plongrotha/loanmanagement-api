@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plongrotha.loanmanagement.dto.request.LoanApplicationBulkRequest;
 import com.plongrotha.loanmanagement.dto.request.LoanApplicationRequest;
 import com.plongrotha.loanmanagement.dto.response.ApiResponse;
 import com.plongrotha.loanmanagement.dto.response.LoanApplicationResponse;
@@ -88,5 +89,15 @@ public class LoanApplicationController {
                 .getAllLoanApplicationsByStatus(status);
         List<LoanApplicationResponse> responses = loanApplicationMapper.toResponseList(loanApplications);
         return ResponseUtil.success(responses, "Loan applications retrieved successfully");
+    }
+
+    @Operation(summary = "Create bulk loan applications")
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> createBulkApplication(
+            @RequestBody @Valid List<LoanApplicationBulkRequest> loanApplicationRequests) {
+        List<LoanApplication> applications = loanApplicationMapper.toEntity(loanApplicationRequests);
+        List<LoanApplication> savedApplications = loanApplicationService.createApplicationsBulk(applications);
+        return ResponseUtil.success(loanApplicationMapper.toResponseList(savedApplications),
+                "Bulk loan applications created successfully");
     }
 }

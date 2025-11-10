@@ -5,6 +5,7 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.plongrotha.loanmanagement.dto.request.LoanApplicationBulkRequest;
 import com.plongrotha.loanmanagement.dto.request.LoanApplicationRequest;
 import com.plongrotha.loanmanagement.dto.response.LoanApplicationResponse;
 import com.plongrotha.loanmanagement.model.LoanApplication;
@@ -19,5 +20,9 @@ public interface LoanApplicationMapper {
     LoanApplicationResponse toResponse(LoanApplication loanApplication);
 
     List<LoanApplicationResponse> toResponseList(List<LoanApplication> loanApplications);
+
+    @Mapping(target = "applicationId", ignore = true)
+    @Mapping(target = "applicationStatus", ignore = true)
+    List<LoanApplication> toEntity(List<LoanApplicationBulkRequest> requests);
 
 }
