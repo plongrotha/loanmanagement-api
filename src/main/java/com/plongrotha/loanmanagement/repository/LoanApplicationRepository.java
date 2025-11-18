@@ -12,5 +12,4 @@ import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 public interface LoanApplicationRepository extends JpaRepository<LoanApplication, Long> {
 
     List<LoanApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
-
 }

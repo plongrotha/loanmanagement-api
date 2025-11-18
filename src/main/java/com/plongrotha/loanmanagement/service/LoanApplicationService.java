@@ -15,9 +15,7 @@ public interface LoanApplicationService {
 
     List<LoanApplication> getAllLoanApplications();
 
-    List<LoanApplication> createApplicationsBulk(List<LoanApplication> loanApplications);
-
-    LoanApplication createNewLoanApplication(LoanApplication loanApplication);
+    List<ApplicationStatus> getAllApplicationStatuses();
 
     List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status);
 
@@ -25,6 +23,19 @@ public interface LoanApplicationService {
 
     List<LoanApplication> getAllLoanApplicationsByLoanType(LoanType loanType);
 
+    LoanApplication createNewLoanApplication(LoanApplication loanApplication);
+
+    LoanApplication createNewLoanApplicationV2(LoanApplication loanApplication);
+
     LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus);
 
+    void approveLoanApplication(Long applicationId);
+    
+    void rejectLoanApplication(Long applicationId);
+
+    void deleteLoanApplicationStatusRejected(Long applicationId);
+    
+    List<LoanApplication> getAllApplicatonStatusPending();
+
+    LoanApplication getLoanApplicationById(Long applicationId);
 }

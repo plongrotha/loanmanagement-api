@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.model.enums.LoanType;
 
 import lombok.AllArgsConstructor;
@@ -15,16 +16,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoanApplicationResponse {
 
-    private Long applicationId;
-    private String applicantFullName;
+    private ApplicationResponse applicationResponse;
     private LoanType loanType;
     private EmploymentStatus employmentStatus;
     private ApplicationStatus applicationStatus;
+    private BigDecimal RemainAmount; 
+    private LoanRefundStatus loanRefundStatus;
     private String loanPurpose;
-    private BigDecimal loanAmount;
+    private BigDecimal Remain;
     private int loanDurationInMonths;
-    private String address;
-    private String phoneNumber;
-    private String nationalId;
-    private BigDecimal monthlyIncome;
 }
