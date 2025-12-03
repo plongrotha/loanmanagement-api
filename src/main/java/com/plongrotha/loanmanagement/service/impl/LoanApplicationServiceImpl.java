@@ -1,12 +1,18 @@
 package com.plongrotha.loanmanagement.service.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.github.javafaker.Faker;
+import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
 import com.plongrotha.loanmanagement.exception.ConflictException;
 import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.model.Application;
@@ -19,12 +25,13 @@ import com.plongrotha.loanmanagement.repository.ApplicationRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanApplicationService;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class LoanApplicationServiceImpl implements LoanApplicationService {
+
+	private LocalDate timeNow = LocalDate.now();
 
 	private final LoanApplicationRepository loanApplicationRepository;
 	private final ApplicationRepository applicationRepository;
@@ -157,7 +164,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		return applicationStatuses;
 	}
 
-	// reject the loan application if the owner don't want to give the loaing
+	// reject the loan application if the owner don't want to give the loaning
 	@Override
 	public void rejectLoanApplication(Long applicationId) {
 		LoanApplication application = loanApplicationRepository.findById(applicationId)
@@ -204,17 +211,69 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 		// Create LoanApplication and attach the saved Application
 		LoanApplication newLoan = new LoanApplication();
-		newLoan.setApplication(newApplication); // ✅ important: attach saved application
+		newLoan.setApplication(newApplication);
 		newLoan.setLoanType(loanApplication.getLoanType());
 		newLoan.setEmploymentStatus(loanApplication.getEmploymentStatus());
 		newLoan.setLoanAmount(loanApplication.getLoanAmount());
 		newLoan.setLoanDurationInMonths(loanApplication.getLoanDurationInMonths());
 		newLoan.setLoanPurpose(loanApplication.getLoanPurpose());
+		newLoan.setCreatedAt(LocalDateTime.now());
 		return loanApplicationRepository.save(newLoan);
 	}
 
+	@Override
+	public PaginationDTO<LoanApplication> getAllLoanApplicationPagination(int page, int size) {
+		Page<LoanApplication> loanPage = loanApplicationRepository.findAll(PageRequest.of(page, size));
+		List<LoanApplication> filteredList = loanPage.getContent().stream()
+				.filter(app -> app.getLoanRefundStatus() == LoanRefundStatus.COMPLETED
+						|| app.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS)
+				.collect(Collectors.toList());
+		return PaginationDTO.fromPage(loanPage);
+	}
+
+	// at here i can add the parameter if i need to filter by choosing type but now
+	// i am not
+	@Override
+	public List<LoanApplication> getAllLoanApplicationsByRefundStatus() {
+		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
+		return loanApplications.stream().filter(loan -> loan.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS)
+				.toList();
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		loanApplicationRepository.findById(id).ifPresentOrElse(loanApplicationRepository::delete, () -> {
+			throw new NotFoundException("No application statuses found");
+		});
+	}
+
+	@Override
+	public List<LoanApplication> getAllLoanApprovedToday() {
+		System.out.println(timeNow);
+		List<LoanApplication> applications = loanApplicationRepository.findAll().stream()
+				.filter(app -> app.getUpdatedAt().toLocalDate().equals(timeNow)).collect(Collectors.toList());
+		if (applications.isEmpty()) {
+			throw new NotFoundException("not found.");
+		}
+		return applications;
+	}
+
+	@Override
+	public void deleteLoanApplicationById(Long applicationId) {
+
+		Application application = applicationRepository.findById(applicationId)
+				.orElseThrow(() -> new NotFoundException("Application not found with id : " + applicationId));
+
+		boolean hasApplication = loanApplicationRepository.existsByApplicationApplicationId(applicationId);
+		if (hasApplication) {
+			throw new DataIntegrityViolationException(" delete this application. Please delete associated loan applications first.");
+		}
+	}
+
+	// this for giving faking value to database if want to test
+//	@PostConstruct
 	public void generateFakeLoanApplications() {
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 100; i++) {
 			Application app = new Application();
 			app.setApplicantFullName(faker.name().fullName());
 			app.setAddress(faker.address().fullAddress());
@@ -227,8 +286,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 			Application saved = applicationRepository.save(app);
 
 			// // RELOAD to attach as MANAGED ENTITY
-			Application managedApp = applicationRepository.findById(saved.getApplicationId())
-					.orElseThrow();
+			Application managedApp = applicationRepository.findById(saved.getApplicationId()).orElseThrow();
 
 			LoanApplication loanApp = new LoanApplication();
 
@@ -236,8 +294,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 			loanApp.setLoanType(randomLoanType());
 			loanApp.setEmploymentStatus(randomEmploymentStatus());
 			loanApp.setApplicationStatus(ApplicationStatus.PENDING);
-			loanApp.setLoanAmount(new BigDecimal(faker.number().numberBetween(100,
-					50000)));
+			loanApp.setLoanAmount(new BigDecimal(faker.number().numberBetween(100, 50000)));
 			loanApp.setPaidAmount(BigDecimal.ZERO);
 			loanApp.setLoanDurationInMonths(faker.number().numberBetween(3, 36));
 			loanApp.setLoanPurpose(faker.lorem().sentence(5));

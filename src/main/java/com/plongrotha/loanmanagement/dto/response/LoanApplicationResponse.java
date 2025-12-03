@@ -16,13 +16,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoanApplicationResponse {
 
-    private ApplicationResponse applicationResponse;
-    private LoanType loanType;
-    private EmploymentStatus employmentStatus;
-    private ApplicationStatus applicationStatus;
-    private BigDecimal RemainAmount; 
-    private LoanRefundStatus loanRefundStatus;
-    private String loanPurpose;
-    private BigDecimal Remain;
-    private int loanDurationInMonths;
+	private ApplicationResponse applicationResponse;
+	private Long loanApplicationId;
+	private LoanType loanType;
+	private EmploymentStatus employmentStatus;
+	private ApplicationStatus applicationStatus;
+	private BigDecimal loanAmount;
+	private BigDecimal paidAmount;
+	private LoanRefundStatus loanRefundStatus;
+	private String loanPurpose;
+	private int loanDurationInMonths;
 }

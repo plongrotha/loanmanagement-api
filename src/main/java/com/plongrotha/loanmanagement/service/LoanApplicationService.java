@@ -2,40 +2,51 @@ package com.plongrotha.loanmanagement.service;
 
 import java.util.List;
 
+import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
 import com.plongrotha.loanmanagement.model.LoanApplication;
 import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.model.enums.LoanType;
 
 public interface LoanApplicationService {
 
-    List<LoanType> getAllLoanTypes();
+	List<LoanType> getAllLoanTypes();
 
-    List<EmploymentStatus> getAllEmploymentStatuses();
+	PaginationDTO<LoanApplication> getAllLoanApplicationPagination(int page, int size);
 
-    List<LoanApplication> getAllLoanApplications();
+	List<EmploymentStatus> getAllEmploymentStatuses();
 
-    List<ApplicationStatus> getAllApplicationStatuses();
+	List<LoanApplication> getAllLoanApplications();
 
-    List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status);
+	List<ApplicationStatus> getAllApplicationStatuses();
 
-    List<LoanApplication> getAllLoanApplicationsByEmploymentStatus(EmploymentStatus employmentStatus);
+	List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status);
+	
+	List<LoanApplication> getAllLoanApplicationsByRefundStatus();
 
-    List<LoanApplication> getAllLoanApplicationsByLoanType(LoanType loanType);
+	List<LoanApplication> getAllLoanApplicationsByEmploymentStatus(EmploymentStatus employmentStatus);
 
-    LoanApplication createNewLoanApplication(LoanApplication loanApplication);
+	List<LoanApplication> getAllLoanApplicationsByLoanType(LoanType loanType);
 
-    LoanApplication createNewLoanApplicationV2(LoanApplication loanApplication);
+	LoanApplication createNewLoanApplication(LoanApplication loanApplication);
 
-    LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus);
+	LoanApplication createNewLoanApplicationV2(LoanApplication loanApplication);
 
-    void approveLoanApplication(Long applicationId);
-    
-    void rejectLoanApplication(Long applicationId);
+	LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus);
 
-    void deleteLoanApplicationStatusRejected(Long applicationId);
-    
-    List<LoanApplication> getAllApplicatonStatusPending();
+	void approveLoanApplication(Long applicationId);
 
-    LoanApplication getLoanApplicationById(Long applicationId);
+	void rejectLoanApplication(Long applicationId);
+
+	void deleteLoanApplicationStatusRejected(Long applicationId);
+
+	void deleteLoanApplicationById(Long applicationId);
+	List<LoanApplication> getAllApplicatonStatusPending();
+
+	LoanApplication getLoanApplicationById(Long applicationId);
+	
+	void deleteById(Long id);
+	
+	List<LoanApplication> getAllLoanApprovedToday();
 }

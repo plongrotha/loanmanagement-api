@@ -28,25 +28,35 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 	public LoanRefundRefund createRefund(LoanRefundRefund refund) {
 		LoanApplication application = loanApplicationRepository
 				.findById(refund.getLoanApplication().getLoanApplicationId())
-				.orElseThrow(() -> new NotFoundException(
-						"Loan Application with id " +
-								refund.getLoanApplication().getLoanApplicationId() + " not found."));
+				.orElseThrow(() -> new NotFoundException("Loan Application with id "
+						+ refund.getLoanApplication().getLoanApplicationId() + " not found."));
 
 		// update paid amount in loan application
 		if (application.getLoanRefundStatus() == LoanRefundStatus.COMPLETED) {
 			throw new LoanAmountZeroException("Loan amount is fully paid, no refund can be processed.");
 		}
+
+		if (application.getLoanRefundStatus() != LoanRefundStatus.IN_PROGRESS) {
+			throw new LoanAmountZeroException("the application not approved yet");
+		}
+
 		BigDecimal paidAmount = application.getPaidAmount() == null ? BigDecimal.ZERO : application.getPaidAmount();
+
+		// and the i set the new value when deptor refund the money back to the owner
 		application.setPaidAmount(paidAmount.add(refund.getRefundAmount()));
 
 		LoanRefundRefund loanRefundRefund = refund;
+		loanRefundRefund.setTotalLoanAmount(application.getLoanAmount());
+		loanRefundRefund.setPaidAmount(refund.getRefundAmount());
 
-		BigDecimal totalPaid = application.getLoanAmount().subtract(application.getPaidAmount());
-		loanRefundRefund.setTotalPaidAmount(totalPaid);
+		loanRefundRefund
+				.setRemainAmount(loanRefundRefund.getTotalLoanAmount().subtract(loanRefundRefund.getPaidAmount()));
 		loanRefundRefund.setLoanApplication(application);
 
 		loanRefundRefund.setRefundInitiatedDate(LocalDateTime.now());
 		loanRefundRefund.setRefundRequestedDate(LocalDateTime.now());
+		loanRefundRefund.setUpdatedAt(LocalDateTime.now());
+		;
 		loanRefundRefund.setCreatedAt(LocalDateTime.now());
 
 		if (application.getLoanAmount().compareTo(application.getPaidAmount()) == 0) {
@@ -70,7 +80,7 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		List<LoanRefundRefund> loanRefundRefunds = refundRepository
 				.findByLoanApplication_LoanApplicationId(loanApplicationId);
 		if (loanRefundRefunds.isEmpty()) {
-			throw new NotFoundException("have no refund with loanAppliation Id : " + loanApplicationId);
+			throw new NotFoundException("have no refunded with loanAppliation Id : " + loanApplicationId);
 		}
 		return refundRepository.findByLoanApplication_LoanApplicationId(loanApplicationId);
 	}

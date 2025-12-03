@@ -20,6 +20,7 @@ import com.plongrotha.loanmanagement.utils.ResponseUtil;
 
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -50,7 +51,7 @@ public class LoanRefundController {
 	@Operation(summary = "Get Refunds by Loan Application Id")
 	@GetMapping("/loan/{loanApplicationId}")
 	public ResponseEntity<ApiResponse<List<LoanfundResponse>>> getRefundsByLoanApplication(
-			@PathVariable Long loanApplicationId) {
+			@PathVariable @Positive Long loanApplicationId) {
 		List<LoanRefundRefund> refunds = loanRefundRefundService.getRefundsByLoanApplicationId(loanApplicationId);
 		List<LoanfundResponse> response = loanRefundMapper.toListResponse(refunds);
 		return ResponseUtil.ok(response, "Refund records retrieved successfully");

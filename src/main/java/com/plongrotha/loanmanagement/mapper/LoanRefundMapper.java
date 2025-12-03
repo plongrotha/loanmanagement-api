@@ -29,7 +29,7 @@ public interface LoanRefundMapper {
 	@Mapping(target = "refundRequestedDate", expression = "java(java.time.LocalDateTime.now())")
 	@Mapping(target = "refundInitiatedDate", ignore = true)
 	@Mapping(target = "refundReadyDate", ignore = true)
-	@Mapping(target = "totalPaidAmount", ignore = true)
+	@Mapping(target = "remainAmount", ignore = true)
 	@Mapping(target = "refundCompletedDate", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)

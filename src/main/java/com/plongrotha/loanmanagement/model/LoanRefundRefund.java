@@ -36,8 +36,14 @@ public class LoanRefundRefund {
 	@Column(name = "refund_amount")
 	private BigDecimal refundAmount;
 	
-	@Column(name = "total_paid_amount")
-	private BigDecimal totalPaidAmount;
+	@Column(name = "total_loan_amount")
+	private BigDecimal totalLoanAmount;
+	
+	@Column(name = "paid_amount")
+	private BigDecimal paidAmount;
+	
+	@Column(name = "remain_amount")
+	private BigDecimal remainAmount;
 
 	@Column(name = "refund_requested_date")
 	private LocalDateTime refundRequestedDate;
