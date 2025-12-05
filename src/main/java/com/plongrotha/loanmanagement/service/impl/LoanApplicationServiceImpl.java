@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 	private LocalDate timeNow = LocalDate.now();
-
+	private LocalDateTime dateTimeNow = LocalDateTime.now();
 	private final LoanApplicationRepository loanApplicationRepository;
 	private final ApplicationRepository applicationRepository;
 	private final Faker faker = new Faker();
@@ -78,7 +78,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 		// Create LoanApplication and attach the saved Application
 		LoanApplication newLoan = new LoanApplication();
-		newLoan.setApplication(newApplication); // ✅ important: attach saved application
+		newLoan.setApplication(newApplication);
 		newLoan.setLoanType(loanApplication.getLoanType());
 		newLoan.setEmploymentStatus(loanApplication.getEmploymentStatus());
 		newLoan.setLoanAmount(loanApplication.getLoanAmount());
@@ -115,6 +115,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		return loanApplications.stream().filter(application -> application.getLoanType() == loanType).toList();
 	}
 
+	// never use this method
 	// update loanApplication status
 	@Override
 	public LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus) {
@@ -135,7 +136,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		if (application.getApplicationStatus() == ApplicationStatus.PENDING) {
 			application.setApplicationStatus(ApplicationStatus.APPROVED);
 			application.setLoanRefundStatus(LoanRefundStatus.IN_PROGRESS);
-			application.setUpdatedAt(LocalDateTime.now());
+			application.setUpdatedAt(dateTimeNow);
 			loanApplicationRepository.save(application);
 		}
 	}
@@ -154,7 +155,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 				.orElseThrow(() -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
 	}
 
-	// get all the the laonApplication
+	// get all the the ApplicationStatus enumeration value
 	@Override
 	public List<ApplicationStatus> getAllApplicationStatuses() {
 		List<ApplicationStatus> applicationStatuses = List.of(ApplicationStatus.values());
@@ -164,7 +165,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		return applicationStatuses;
 	}
 
-	// reject the loan application if the owner don't want to give the loaning
+	// reject the loan application if the owner don't want to give the loan
 	@Override
 	public void rejectLoanApplication(Long applicationId) {
 		LoanApplication application = loanApplicationRepository.findById(applicationId)
@@ -182,29 +183,31 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 	@Override
 	public void deleteLoanApplicationStatusRejected(Long applicationId) {
+		applicationRepository.findById(applicationId).ifPresentOrElse(applicationRepository::delete, () -> {
+			throw new NotFoundException("No application with given ID found");
+		});
 		LoanApplication application = loanApplicationRepository.findById(applicationId)
 				.orElseThrow(() -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
-		// if(application.getApplicationStatus() == ApplicationStatus.REJECTED) {
-		// loanApplicationRepository.delete(application);
-		// }
-		// update from delete if application status Rejected now not like those
-		loanApplicationRepository.delete(application);
+		if (application.getApplicationStatus() == ApplicationStatus.REJECTED) {
+			loanApplicationRepository.delete(application);
+		}
+		throw new ConflictException("Only rejected loan applications can be deleted.");
 	}
 
-	// create v2 by this method all the request are in the body
+	// create method version 2 by this method all the request are in the body
 	@Override
 	public LoanApplication createNewLoanApplicationV2(LoanApplication loanApplication) {
 		Application incomingApp = loanApplication.getApplication();
 		if (incomingApp == null) {
 			throw new IllegalArgumentException("Application (applicant info) cannot be null");
 		}
-
 		// Create new Application entity from incoming data
 		Application newApplication = new Application();
 		newApplication.setAddress(incomingApp.getAddress());
 		newApplication.setApplicantFullName(incomingApp.getApplicantFullName());
 		newApplication.setNationalId(incomingApp.getNationalId());
 		newApplication.setPhoneNumber(incomingApp.getPhoneNumber());
+		newApplication.setUpdatedAt(dateTimeNow);
 		newApplication.setEmail(incomingApp.getEmail());
 
 		applicationRepository.save(newApplication);
@@ -228,11 +231,26 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 				.filter(app -> app.getLoanRefundStatus() == LoanRefundStatus.COMPLETED
 						|| app.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS)
 				.collect(Collectors.toList());
-		return PaginationDTO.fromPage(loanPage);
+
+		// return just loanApplication that have status COMPLETED and IN_PROGRESS
+		return PaginationDTO.<LoanApplication>builder()
+				.content(filteredList)
+				.empty(loanPage.isEmpty())
+				.first(loanPage.isFirst())
+				.last(loanPage.isLast())
+				.pageNumber(loanPage.getNumber())
+				.pageSize(loanPage.getSize())
+				.totalElements(loanPage.getTotalElements())
+				.totalPages(loanPage.getTotalPages())
+				.numberOfElements(loanPage.getNumberOfElements())
+				.build();
+
+		// if return loanApplication no care about status
+		// return PaginationDTO.fromPage(loanPage);
 	}
 
 	// at here i can add the parameter if i need to filter by choosing type but now
-	// i am not
+	// get all with in progress status
 	@Override
 	public List<LoanApplication> getAllLoanApplicationsByRefundStatus() {
 		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
@@ -242,13 +260,18 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 	@Override
 	public void deleteById(Long id) {
-		loanApplicationRepository.findById(id).ifPresentOrElse(loanApplicationRepository::delete, () -> {
-			throw new NotFoundException("No application statuses found");
-		});
+		Application application = applicationRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Application not found with id : " + id));
+		applicationRepository.deleteById(id);
+		boolean hasApplication = loanApplicationRepository.existsByApplicationApplicationId(id);
+		if (hasApplication) {
+			loanApplicationRepository.deleteByApplicationApplicationId(id);
+		}
 	}
 
+	// get all loan recently updated today
 	@Override
-	public List<LoanApplication> getAllLoanApprovedToday() {
+	public List<LoanApplication> getAllLoanRecentUpdatedToday() {
 		System.out.println(timeNow);
 		List<LoanApplication> applications = loanApplicationRepository.findAll().stream()
 				.filter(app -> app.getUpdatedAt().toLocalDate().equals(timeNow)).collect(Collectors.toList());
@@ -260,18 +283,28 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 	@Override
 	public void deleteLoanApplicationById(Long applicationId) {
-
 		Application application = applicationRepository.findById(applicationId)
 				.orElseThrow(() -> new NotFoundException("Application not found with id : " + applicationId));
-
 		boolean hasApplication = loanApplicationRepository.existsByApplicationApplicationId(applicationId);
 		if (hasApplication) {
-			throw new DataIntegrityViolationException(" delete this application. Please delete associated loan applications first.");
+			throw new DataIntegrityViolationException(
+					" delete this application. Please delete associated loan applications first.");
 		}
 	}
 
+	@Override
+	public List<LoanApplication> getAllLoanApplicationRefundCompleted() {
+		List<LoanApplication> loanApplicationRefundCompleted = loanApplicationRepository.findAll();
+		List<LoanApplication> collect = loanApplicationRefundCompleted.stream()
+				.filter(loan -> loan.getLoanRefundStatus() == LoanRefundStatus.COMPLETED).collect(Collectors.toList());
+		if (collect.isEmpty()) {
+			throw new NotFoundException("no have loanApplication that Refund completed.");
+		}
+		return collect;
+	}
+
 	// this for giving faking value to database if want to test
-//	@PostConstruct
+	// @PostConstruct
 	public void generateFakeLoanApplications() {
 		for (int i = 0; i < 100; i++) {
 			Application app = new Application();

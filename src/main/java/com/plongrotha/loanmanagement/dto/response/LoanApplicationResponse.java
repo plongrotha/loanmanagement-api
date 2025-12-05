@@ -1,6 +1,7 @@
 package com.plongrotha.loanmanagement.dto.response;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
@@ -26,4 +27,5 @@ public class LoanApplicationResponse {
 	private LoanRefundStatus loanRefundStatus;
 	private String loanPurpose;
 	private int loanDurationInMonths;
+	private LocalDateTime updatedAt;
 }

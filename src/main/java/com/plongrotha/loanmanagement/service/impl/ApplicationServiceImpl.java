@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.model.Application;
 import com.plongrotha.loanmanagement.repository.ApplicationRepository;
+import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.ApplicationService;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
+    private final LoanApplicationRepository loanApplicationRepository;
 
     @Override
     public Application updateApplication(Long applicationId, Application application) {
@@ -40,6 +42,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public void deleteApplication(Long applicationId) {
+        boolean hasByAppicationId = loanApplicationRepository.existsByApplicationApplicationId(applicationId);
+        if (hasByAppicationId) {
+            loanApplicationRepository.deleteById(applicationId);
+        }
         Application existingApplication = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application with ID " + applicationId + " not found"));
         applicationRepository.delete(existingApplication);

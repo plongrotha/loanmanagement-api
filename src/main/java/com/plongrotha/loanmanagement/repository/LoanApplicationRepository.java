@@ -13,5 +13,7 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
 
 	List<LoanApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
+	void deleteByApplicationApplicationId(Long applicationId);
+
 	boolean existsByApplicationApplicationId(Long applicationLong);
 }

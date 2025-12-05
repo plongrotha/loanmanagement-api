@@ -6,7 +6,6 @@ import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
 import com.plongrotha.loanmanagement.model.LoanApplication;
 import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.model.enums.LoanType;
 
 public interface LoanApplicationService {
@@ -22,7 +21,7 @@ public interface LoanApplicationService {
 	List<ApplicationStatus> getAllApplicationStatuses();
 
 	List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status);
-	
+
 	List<LoanApplication> getAllLoanApplicationsByRefundStatus();
 
 	List<LoanApplication> getAllLoanApplicationsByEmploymentStatus(EmploymentStatus employmentStatus);
@@ -42,11 +41,14 @@ public interface LoanApplicationService {
 	void deleteLoanApplicationStatusRejected(Long applicationId);
 
 	void deleteLoanApplicationById(Long applicationId);
+
 	List<LoanApplication> getAllApplicatonStatusPending();
 
 	LoanApplication getLoanApplicationById(Long applicationId);
-	
+
 	void deleteById(Long id);
-	
-	List<LoanApplication> getAllLoanApprovedToday();
+
+	List<LoanApplication> getAllLoanApplicationRefundCompleted();
+
+	List<LoanApplication> getAllLoanRecentUpdatedToday();
 }

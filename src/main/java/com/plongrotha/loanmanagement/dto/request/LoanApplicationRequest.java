@@ -7,7 +7,6 @@ import com.plongrotha.loanmanagement.model.enums.LoanType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -35,7 +34,6 @@ public class LoanApplicationRequest {
     @Min(value = 1, message = "Loan duration must be at least 1 month")
     private int loanDurationInMonths;
 
-    @NotBlank(message = "Loan purpose is required")
     @Size(max = 255, message = "Loan purpose must not exceed 255 characters")
     private String loanPurpose;
 }

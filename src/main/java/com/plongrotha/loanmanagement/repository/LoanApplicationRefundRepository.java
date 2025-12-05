@@ -9,5 +9,5 @@ import com.plongrotha.loanmanagement.model.LoanRefundRefund;
 
 @Repository
 public interface LoanApplicationRefundRepository extends JpaRepository<LoanRefundRefund, Long> {
-	 List<LoanRefundRefund> findByLoanApplication_LoanApplicationId(Long loanApplicationId);
+	List<LoanRefundRefund> findByLoanApplication_LoanApplicationId(Long loanApplicationId);
 }

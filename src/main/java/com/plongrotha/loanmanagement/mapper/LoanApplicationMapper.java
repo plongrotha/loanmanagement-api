@@ -50,8 +50,7 @@ public interface LoanApplicationMapper {
         app.setLoanApplicationId(id);
         return app;
     }
-    
-    
+
     default PaginationDTO<LoanApplicationResponse> toPaginationResponse(PaginationDTO<LoanApplication> paginationDTO) {
         if (paginationDTO == null) {
             return null;

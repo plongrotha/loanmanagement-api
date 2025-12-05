@@ -47,6 +47,13 @@ public class LoanRefundController {
 		LoanRefundRefund saved = loanRefundRefundService.createRefund(loanRefundRefund);
 		return ResponseUtil.created(loanRefundMapper.toResponse(saved), "Loan Refund successfully.");
 	}
+	
+	@Operation(summary = "Get a Refund by RefundId")
+	@GetMapping("/{refundId}")
+	public ResponseEntity<ApiResponse<LoanfundResponse>> getRefundById(@PathVariable @Positive Long refundId){
+		LoanRefundRefund loanRefundRefund = loanRefundRefundService.getRefundById(refundId);
+		return ResponseUtil.ok(loanRefundMapper.toResponse(loanRefundRefund), "loan refund Id : " + refundId + " retrieved successfully");
+	}
 
 	@Operation(summary = "Get Refunds by Loan Application Id")
 	@GetMapping("/loan/{loanApplicationId}")
@@ -54,6 +61,6 @@ public class LoanRefundController {
 			@PathVariable @Positive Long loanApplicationId) {
 		List<LoanRefundRefund> refunds = loanRefundRefundService.getRefundsByLoanApplicationId(loanApplicationId);
 		List<LoanfundResponse> response = loanRefundMapper.toListResponse(refunds);
-		return ResponseUtil.ok(response, "Refund records retrieved successfully");
+		return ResponseUtil.ok(response, "list all Refund records retrieved successfully");
 	}
 }
