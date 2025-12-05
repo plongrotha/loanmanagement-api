@@ -15,5 +15,5 @@ public class ApiResponse<T> {
     private boolean isSuccess;
     private String message;
     private T data;
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private LocalDateTime timestamp;
 }

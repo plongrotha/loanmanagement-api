@@ -11,6 +11,9 @@ import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
 @Repository
 public interface LoanApplicationRepository extends JpaRepository<LoanApplication, Long> {
 
-    List<LoanApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
+	List<LoanApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
+	void deleteByApplicationApplicationId(Long applicationId);
+
+	boolean existsByApplicationApplicationId(Long applicationLong);
 }
