@@ -19,9 +19,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoanApplicationRequest {
 
-	
     private ApplicationRequest applicationRequest;
-    
+
     private LoanType loanType;
 
     private EmploymentStatus employmentStatus;
@@ -32,8 +31,10 @@ public class LoanApplicationRequest {
     private BigDecimal loanAmount;
 
     @Min(value = 1, message = "Loan duration must be at least 1 month")
+    @Schema(example = "12")
     private int loanDurationInMonths;
 
     @Size(max = 255, message = "Loan purpose must not exceed 255 characters")
+    @Schema(example = "Home renovation")
     private String loanPurpose;
 }

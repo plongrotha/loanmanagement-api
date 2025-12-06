@@ -16,6 +16,6 @@ public class LoanRefundRequest {
 	@NotNull(message = "loanApplicationId can not be null")
 	private Long loanApplicationId;
 
-	@Positive
+	@Positive(message = "refundAmount must be positive and greater than 0")
 	private BigDecimal refundAmount;
 }
