@@ -2,6 +2,7 @@ package com.plongrotha.loanmanagement.controller;
 
 import java.util.List;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -188,5 +189,15 @@ public class LoanApplicationController {
 		List<LoanApplication> applications = loanApplicationService.getAllLoanRecentUpdatedToday();
 		List<LoanApplicationResponse> response = loanApplicationMapper.toResponseList(applications);
 		return ResponseUtil.ok(response, "Approved loans for today retrieved successfully.");
+	}
+
+	@GetMapping("/refund-in-progress")
+	@Operation(summary = "Retrieve all LoanApplicationResponse with refund in progress with pagination")
+	public ResponseEntity<ApiResponse<PaginationDTO<LoanApplicationResponse>>> getAllLoanApplicationRefundInProgress(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size) {
+		PaginationDTO<LoanApplication> dto = loanApplicationService.getAllLoanApplicationRefundInProgress(page, size);
+		PaginationDTO<LoanApplicationResponse> response = loanApplicationMapper.toPaginationResponse(dto);
+		return ResponseUtil.ok(response, "loanApplicaion retrieve succfully.");
 	}
 }

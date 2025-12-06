@@ -14,6 +14,9 @@ public interface LoanApplicationService {
 
 	PaginationDTO<LoanApplication> getAllLoanApplicationPagination(int page, int size);
 
+	PaginationDTO<LoanApplication> getAllLoanApplicationRefundInProgress(int page,
+			int size);
+
 	List<EmploymentStatus> getAllEmploymentStatuses();
 
 	List<LoanApplication> getAllLoanApplications();

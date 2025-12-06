@@ -13,24 +13,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApplicationRequest {
 
-	@NotEmpty(message = "full name cannot be empty")
+    @NotEmpty(message = "full name cannot be empty")
     @NotNull(message = "Applicant full name is required")
     private String applicantFullName;
 
-	@NotEmpty(message = " address cannot be empty")
+    @NotEmpty(message = " address cannot be empty")
     @NotNull(message = "Address is required")
     private String address;
-    
-	@NotEmpty(message = " email cannot be empty")
-    @Schema(example = "@gmail.com")
-    @Email(message = "Email is required")
+
+    @NotEmpty(message = " email cannot be empty")
+    @Schema(example = "example@gmail.com")
+    @Email(message = "Email should be valid")
     private String email;
 
-	@NotEmpty(message = "phoneNumber cannot be empty")
+    @NotEmpty(message = "phoneNumber cannot be empty")
     @NotNull(message = "Phone number is required")
     private String phoneNumber;
 
-	@NotEmpty(message = "nationalId cannot be empty")
+    @NotEmpty(message = "nationalId cannot be empty")
     @NotNull(message = "National ID is required")
     private String nationalId;
 

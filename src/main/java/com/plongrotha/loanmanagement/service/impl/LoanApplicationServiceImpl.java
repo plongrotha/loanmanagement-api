@@ -348,4 +348,24 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		EmploymentStatus[] types = EmploymentStatus.values();
 		return types[faker.number().numberBetween(0, types.length)];
 	}
+
+	@Override
+	public PaginationDTO<LoanApplication> getAllLoanApplicationRefundInProgress(int page, int size) {
+		Page<LoanApplication> loanPage = loanApplicationRepository.findAll(PageRequest.of(page, size));
+		List<LoanApplication> inProgressLoan = loanPage.getContent().stream()
+				.filter(app -> app.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS)
+				.collect(Collectors.toList());
+		// return just loanApplication that have status COMPLETED and IN_PROGRESS
+		return PaginationDTO.<LoanApplication>builder()
+				.content(inProgressLoan)
+				.empty(loanPage.isEmpty())
+				.first(loanPage.isFirst())
+				.last(loanPage.isLast())
+				.pageNumber(loanPage.getNumber())
+				.pageSize(loanPage.getSize())
+				.totalElements(loanPage.getTotalElements())
+				.totalPages(loanPage.getTotalPages())
+				.numberOfElements(loanPage.getNumberOfElements())
+				.build();
+	}
 }
