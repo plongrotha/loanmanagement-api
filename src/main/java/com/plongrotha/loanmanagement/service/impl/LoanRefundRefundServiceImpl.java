@@ -6,11 +6,11 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.exception.LoanAmountZeroException;
 import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.model.LoanApplication;
 import com.plongrotha.loanmanagement.model.LoanRefundRefund;
-import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRefundRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanRefundRefundService;

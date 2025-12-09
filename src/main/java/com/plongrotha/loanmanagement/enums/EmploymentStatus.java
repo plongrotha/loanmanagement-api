@@ -1,4 +1,4 @@
-package com.plongrotha.loanmanagement.model.enums;
+package com.plongrotha.loanmanagement.enums;
 
 public enum EmploymentStatus {
     EMPLOYED,

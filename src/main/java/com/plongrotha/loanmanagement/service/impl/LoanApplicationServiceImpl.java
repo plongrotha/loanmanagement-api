@@ -13,14 +13,14 @@ import org.springframework.stereotype.Service;
 
 import com.github.javafaker.Faker;
 import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
+import com.plongrotha.loanmanagement.enums.ApplicationStatus;
+import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
+import com.plongrotha.loanmanagement.enums.LoanType;
 import com.plongrotha.loanmanagement.exception.ConflictException;
 import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.model.Application;
 import com.plongrotha.loanmanagement.model.LoanApplication;
-import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
-import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanType;
 import com.plongrotha.loanmanagement.repository.ApplicationRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanApplicationService;

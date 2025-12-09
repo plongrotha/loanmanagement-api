@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
-import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanType;
+import com.plongrotha.loanmanagement.enums.ApplicationStatus;
+import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
+import com.plongrotha.loanmanagement.enums.LoanType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

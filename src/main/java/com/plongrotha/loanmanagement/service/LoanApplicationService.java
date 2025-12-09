@@ -3,10 +3,10 @@ package com.plongrotha.loanmanagement.service;
 import java.util.List;
 
 import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
+import com.plongrotha.loanmanagement.enums.ApplicationStatus;
+import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanType;
 import com.plongrotha.loanmanagement.model.LoanApplication;
-import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
-import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanType;
 
 public interface LoanApplicationService {
 

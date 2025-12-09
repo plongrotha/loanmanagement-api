@@ -3,10 +3,10 @@ package com.plongrotha.loanmanagement.dto.response;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
-import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanRefundStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanType;
+import com.plongrotha.loanmanagement.enums.ApplicationStatus;
+import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
+import com.plongrotha.loanmanagement.enums.LoanType;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

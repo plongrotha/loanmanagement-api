@@ -2,8 +2,8 @@ package com.plongrotha.loanmanagement.dto.request;
 
 import java.math.BigDecimal;
 
-import com.plongrotha.loanmanagement.model.enums.EmploymentStatus;
-import com.plongrotha.loanmanagement.model.enums.LoanType;
+import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanType;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
