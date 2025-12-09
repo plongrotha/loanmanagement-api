@@ -31,8 +31,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoanApplicationServiceImpl implements LoanApplicationService {
 
-	private LocalDate timeNow = LocalDate.now();
-	private LocalDateTime dateTimeNow = LocalDateTime.now();
 	private final LoanApplicationRepository loanApplicationRepository;
 	private final ApplicationRepository applicationRepository;
 	private final Faker faker = new Faker();
@@ -40,24 +38,27 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	@Override
 	public List<LoanType> getAllLoanTypes() {
 		List<LoanType> loanTypes = List.of(LoanType.values());
-		if (loanTypes.isEmpty())
-			throw new NotFoundException("No loan types found");
+		if (loanTypes.isEmpty()) {
+			return List.of();
+		}
 		return loanTypes;
 	}
 
 	@Override
 	public List<EmploymentStatus> getAllEmploymentStatuses() {
 		List<EmploymentStatus> employmentStatuses = List.of(EmploymentStatus.values());
-		if (employmentStatuses.isEmpty())
-			throw new NotFoundException("No employment statuses found");
+		if (employmentStatuses.isEmpty()) {
+			return List.of();
+		}
 		return employmentStatuses;
 	}
 
 	@Override
 	public List<LoanApplication> getAllLoanApplications() {
 		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
-		if (loanApplications.isEmpty())
-			throw new NotFoundException("No loan applications found");
+		if (loanApplications.isEmpty()) {
+			return List.of();
+		}
 		return loanApplications;
 	}
 
@@ -65,8 +66,9 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	@Override
 	public LoanApplication createNewLoanApplication(LoanApplication loanApplication) {
 		Application incomingApp = loanApplication.getApplication();
-		if (incomingApp == null)
+		if (incomingApp == null) {
 			throw new IllegalArgumentException("Application (applicant info) cannot be null");
+		}
 		// Create new Application entity from incoming data
 		Application newApplication = new Application();
 		newApplication.setAddress(incomingApp.getAddress());
@@ -91,40 +93,27 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	public List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status) {
 		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
 		if (loanApplications.isEmpty()) {
-			throw new NotFoundException("No loan applications found");
+			return List.of();
 		}
 		return loanApplications.stream().filter(application -> application.getApplicationStatus() == status).toList();
 	}
 
 	@Override
 	public List<LoanApplication> getAllLoanApplicationsByEmploymentStatus(EmploymentStatus employmentStatus) {
-		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
+		List<LoanApplication> loanApplications = loanApplicationRepository.findByEmploymentStatus(employmentStatus);
 		if (loanApplications.isEmpty()) {
-			throw new NotFoundException("No loan applications found");
+			return List.of();
 		}
-		return loanApplications.stream().filter(application -> application.getEmploymentStatus() == employmentStatus)
-				.toList();
+		return loanApplications;
 	}
 
 	@Override
 	public List<LoanApplication> getAllLoanApplicationsByLoanType(LoanType loanType) {
 		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
 		if (loanApplications.isEmpty()) {
-			throw new NotFoundException("No loan applications found");
+			return List.of();
 		}
 		return loanApplications.stream().filter(application -> application.getLoanType() == loanType).toList();
-	}
-
-	// never use this method
-	// update loanApplication status
-	@Override
-	public LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus) {
-		LoanApplication application = loanApplicationRepository.findById(applicationId)
-				.orElseThrow(() -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
-		if (application.getApplicationStatus() == ApplicationStatus.PENDING) {
-			application.setApplicationStatus(newStatus);
-		}
-		return loanApplicationRepository.save(application);
 	}
 
 	// approve loanApplication when have have request for loaning
@@ -136,16 +125,15 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		if (application.getApplicationStatus() == ApplicationStatus.PENDING) {
 			application.setApplicationStatus(ApplicationStatus.APPROVED);
 			application.setLoanRefundStatus(LoanRefundStatus.IN_PROGRESS);
-			application.setUpdatedAt(dateTimeNow);
+			application.setUpdatedAt(LocalDateTime.now());
 			loanApplicationRepository.save(application);
 		}
 	}
 
 	// get all the value from the enumeration
 	@Override
-	public List<LoanApplication> getAllApplicatonStatusPending() {
-		return loanApplicationRepository.findAll().stream()
-				.filter(application -> application.getApplicationStatus() == ApplicationStatus.PENDING).toList();
+	public List<LoanApplication> getAllApplicationStatusPending() {
+		return loanApplicationRepository.findAllByApplicationStatus(ApplicationStatus.PENDING);
 	}
 
 	// get loan application by id
@@ -160,7 +148,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	public List<ApplicationStatus> getAllApplicationStatuses() {
 		List<ApplicationStatus> applicationStatuses = List.of(ApplicationStatus.values());
 		if (applicationStatuses.isEmpty()) {
-			throw new NotFoundException("No application statuses found");
+			return List.of();
 		}
 		return applicationStatuses;
 	}
@@ -174,10 +162,6 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 			application.setApplicationStatus(ApplicationStatus.REJECTED);
 			application.setUpdatedAt(LocalDateTime.now());
 			loanApplicationRepository.save(application);
-		} else if (application.getApplicationStatus() == ApplicationStatus.APPROVED) {
-			throw new ConflictException("this loanApplicatoin is approved.");
-		} else if (application.getApplicationStatus() == ApplicationStatus.REJECTED) {
-			throw new ConflictException("this loanApplicatoin is rejected.");
 		}
 	}
 
@@ -207,7 +191,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		newApplication.setApplicantFullName(incomingApp.getApplicantFullName());
 		newApplication.setNationalId(incomingApp.getNationalId());
 		newApplication.setPhoneNumber(incomingApp.getPhoneNumber());
-		newApplication.setUpdatedAt(dateTimeNow);
+		newApplication.setUpdatedAt(LocalDateTime.now());
 		newApplication.setEmail(incomingApp.getEmail());
 
 		applicationRepository.save(newApplication);
@@ -272,11 +256,10 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	// get all loan recently updated today
 	@Override
 	public List<LoanApplication> getAllLoanRecentUpdatedToday() {
-		System.out.println(timeNow);
 		List<LoanApplication> applications = loanApplicationRepository.findAll().stream()
-				.filter(app -> app.getUpdatedAt().toLocalDate().equals(timeNow)).collect(Collectors.toList());
+				.filter(app -> app.getUpdatedAt().toLocalDate().equals(LocalDate.now())).collect(Collectors.toList());
 		if (applications.isEmpty()) {
-			throw new NotFoundException("not found.");
+			return List.of();
 		}
 		return applications;
 	}
@@ -298,7 +281,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		List<LoanApplication> collect = loanApplicationRefundCompleted.stream()
 				.filter(loan -> loan.getLoanRefundStatus() == LoanRefundStatus.COMPLETED).collect(Collectors.toList());
 		if (collect.isEmpty()) {
-			throw new NotFoundException("no have loanApplication that Refund completed.");
+			return List.of();
 		}
 		return collect;
 	}

@@ -2,7 +2,6 @@ package com.plongrotha.loanmanagement.controller;
 
 import java.util.List;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +16,6 @@ import com.plongrotha.loanmanagement.dto.request.LoanApplicationRequest;
 import com.plongrotha.loanmanagement.dto.response.ApiResponse;
 import com.plongrotha.loanmanagement.dto.response.LoanApplicationResponse;
 import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
-import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.mapper.LoanApplicationMapper;
 import com.plongrotha.loanmanagement.model.LoanApplication;
 import com.plongrotha.loanmanagement.model.enums.ApplicationStatus;
@@ -43,14 +41,14 @@ public class LoanApplicationController {
 	@Operation(summary = "Get all loan types")
 	@GetMapping("/loan-types")
 	public ResponseEntity<ApiResponse<List<LoanType>>> getAllLoanTypes() {
-		List<LoanType> loanTypes = loanApplicationService.getAllLoanTypes();
+		var loanTypes = loanApplicationService.getAllLoanTypes();
 		return ResponseUtil.success(loanTypes, "Loan types retrieved successfully");
 	}
 
 	@Operation(summary = "Get all employment statuses")
 	@GetMapping("/employment-statuses")
 	public ResponseEntity<ApiResponse<List<EmploymentStatus>>> getAllEmploymentStatuses() {
-		List<EmploymentStatus> employmentStatuses = loanApplicationService.getAllEmploymentStatuses();
+		var employmentStatuses = loanApplicationService.getAllEmploymentStatuses();
 		return ResponseUtil.success(employmentStatuses, "Employment statuses retrieved successfully");
 	}
 
@@ -61,10 +59,10 @@ public class LoanApplicationController {
 			@RequestBody @Valid LoanApplicationRequest loanApplicationRequest,
 			@RequestParam @Valid LoanType loanType,
 			@RequestParam @Valid EmploymentStatus employmentStatus) {
-		LoanApplication application = loanApplicationMapper.toEntity(loanApplicationRequest);
+		var application = loanApplicationMapper.toEntity(loanApplicationRequest);
 		application.setLoanType(loanType);
 		application.setEmploymentStatus(employmentStatus);
-		LoanApplication savedApplication = loanApplicationService.createNewLoanApplication(application);
+		var savedApplication = loanApplicationService.createNewLoanApplication(application);
 		return ResponseUtil.success(loanApplicationMapper.toResponse(savedApplication),
 				"Loan application created successfully");
 	}
@@ -74,9 +72,9 @@ public class LoanApplicationController {
 	public ResponseEntity<ApiResponse<LoanApplicationResponse>> createLoanApplicationV2(
 			@RequestBody @Valid LoanApplicationRequest loanApplicationRequest) {
 		// convert request to entity
-		LoanApplication application = loanApplicationMapper.toEntity(loanApplicationRequest);
+		var application = loanApplicationMapper.toEntity(loanApplicationRequest);
 		// call service to save application
-		LoanApplication savedApplication = loanApplicationService.createNewLoanApplicationV2(application);
+		var savedApplication = loanApplicationService.createNewLoanApplicationV2(application);
 		// and then return response to client by convert it from entity to response
 		return ResponseUtil.success(loanApplicationMapper.toResponse(savedApplication),
 				"Loan application created successfully");
@@ -86,30 +84,35 @@ public class LoanApplicationController {
 	@GetMapping("/by-loan-type")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getLoanApplicationsByLoanType(
 			@RequestParam LoanType loanType) {
-		List<LoanApplication> loanApplications = loanApplicationService.getAllLoanApplicationsByLoanType(loanType);
-		List<LoanApplicationResponse> responses = loanApplicationMapper.toResponseList(loanApplications);
-		return ResponseUtil.success(responses, "Loan applications retrieved successfully");
+		var loanApplications = loanApplicationService.getAllLoanApplicationsByLoanType(loanType);
+		var dto = loanApplicationMapper.toResponseList(loanApplications);
+		return ResponseUtil.success(dto, "Loan applications retrieved successfully");
 	}
 
 	@Operation(summary = "Get loan applications by employment status")
 	@GetMapping("/by-employment-status")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getLoanApplicationsByEmploymentStatus(
 			@RequestParam EmploymentStatus employmentStatus) {
-		List<LoanApplication> loanApplications = loanApplicationService
-				.getAllLoanApplicationsByEmploymentStatus(employmentStatus);
-		List<LoanApplicationResponse> responses = loanApplicationMapper.toResponseList(loanApplications);
-		return ResponseUtil.success(responses, "Loan applications retrieved successfully");
+		var loanApplications = loanApplicationService.getAllLoanApplicationsByEmploymentStatus(employmentStatus);
+		var dto = loanApplicationMapper.toResponseList(loanApplications);
+		if (loanApplications.isEmpty()) {
+			return List.of().isEmpty()
+					? ResponseUtil.success(List.of(), "No loan applications found for the specified employment status")
+					: ResponseUtil.success(dto, "Loan applications retrieved successfully");
+		}
+		return ResponseUtil.success(dto, "Loan applications retrieved successfully");
 	}
 
 	@Operation(summary = "Get loan applications by status")
 	@GetMapping("/by-status")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getLoanApplicationsByStatus(
 			@RequestParam ApplicationStatus status) {
-		List<LoanApplication> loanApplications = loanApplicationService.getAllLoanApplicationsByStatus(status);
-		List<LoanApplicationResponse> responses = loanApplicationMapper.toResponseList(loanApplications);
-		return ResponseUtil.success(responses, "Loan applications retrieved successfully");
+		var loanApplications = loanApplicationService.getAllLoanApplicationsByStatus(status);
+		var dto = loanApplicationMapper.toResponseList(loanApplications);
+		return ResponseUtil.success(dto, "Loan applications retrieved successfully");
 	}
 
+	// note need to update {applicationId}/approve to @RequestParam
 	@Operation(summary = "Approve a loan application")
 	@PostMapping("/approve")
 	public ResponseEntity<ApiResponse<Void>> approveLoanApplication(@RequestParam @Positive Long applicationId) {
@@ -119,30 +122,29 @@ public class LoanApplicationController {
 
 	@GetMapping("/pending")
 	@Operation(summary = "Get all loan applications with PENDING status")
-	public ResponseEntity<ApiResponse<List<LoanApplication>>> getAllPendingLoanApplications() {
-		List<LoanApplication> pendingApplications = loanApplicationService.getAllApplicatonStatusPending();
-		if (pendingApplications.isEmpty()) {
-			throw new NotFoundException("No pending loan applications found");
-		}
-		return ResponseUtil.success(pendingApplications, "Pending loan applications retrieved successfully");
+	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllPendingLoanApplications() {
+		var pendingApplications = loanApplicationService.getAllApplicationStatusPending();
+		var dto = loanApplicationMapper.toResponseList(pendingApplications);
+		return ResponseUtil.success(dto, "Pending loan applications retrieved successfully");
 	}
 
 	@GetMapping("/{applicationId}")
 	@Operation(summary = "Get loan application by ID")
 	public ResponseEntity<ApiResponse<LoanApplicationResponse>> getLoanApplicationById(
 			@PathVariable @Positive Long applicationId) {
-		LoanApplication application = loanApplicationService.getLoanApplicationById(applicationId);
-		LoanApplicationResponse response = loanApplicationMapper.toResponse(application);
-		return ResponseUtil.success(response, "Loan application retrieved successfully");
+		var app = loanApplicationService.getLoanApplicationById(applicationId);
+		var dto = loanApplicationMapper.toResponse(app);
+		return ResponseUtil.success(dto, "Loan application retrieved successfully");
 	}
 
 	@GetMapping("/application-statuses")
 	@Operation(summary = "Get all application statuses")
 	public ResponseEntity<ApiResponse<List<ApplicationStatus>>> getAllApplicationStatuses() {
-		List<ApplicationStatus> applicationStatuses = loanApplicationService.getAllApplicationStatuses();
+		var applicationStatuses = loanApplicationService.getAllApplicationStatuses();
 		return ResponseUtil.success(applicationStatuses, "Application statuses retrieved successfully");
 	}
 
+	// note need to update {applicationId}/reject to @RequestParam
 	@Operation(summary = "Reject a loan application")
 	@PostMapping("/reject")
 	public ResponseEntity<ApiResponse<Void>> rejectLoanApplication(@RequestParam @Positive Long applicationId) {
@@ -153,8 +155,9 @@ public class LoanApplicationController {
 	@Operation(summary = "Get all loan applications")
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<LoanApplication>>> getAllLoanApplication() {
-		List<LoanApplication> loanApplications = loanApplicationService.getAllLoanApplications();
-		return ResponseUtil.success(loanApplications, "Loan applications retrieved successfully");
+		var loanApplications = loanApplicationService.getAllLoanApplications();
+		return ResponseUtil.success(loanApplications, loanApplications.isEmpty() ? "No loan applications found"
+				: "Loan applications retrieved successfully");
 	}
 
 	@Operation(summary = "Retrieve all LoanApplicationResponse with pagination")
@@ -162,33 +165,33 @@ public class LoanApplicationController {
 	public ResponseEntity<ApiResponse<PaginationDTO<LoanApplicationResponse>>> getAllLoanApplicationPagination(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
-		PaginationDTO<LoanApplication> dto = loanApplicationService.getAllLoanApplicationPagination(page, size);
-		PaginationDTO<LoanApplicationResponse> response = loanApplicationMapper.toPaginationResponse(dto);
-		return ResponseUtil.ok(response, "loanApplicaion retrieve succfully.");
+		var list = loanApplicationService.getAllLoanApplicationPagination(page, size);
+		var dto = loanApplicationMapper.toPaginationResponse(list);
+		return ResponseUtil.ok(dto, "loanApplicaion retrieve successfully.");
 	}
 
 	@Operation(summary = "Retrieve all LoanApplicationResponse by RefundStatus")
 	@GetMapping("/by-refund-status")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanApplicationByRefundStatus() {
-		List<LoanApplication> applications = loanApplicationService.getAllLoanApplicationsByRefundStatus();
-		List<LoanApplicationResponse> response = loanApplicationMapper.toResponseList(applications);
-		return ResponseUtil.ok(response, "loanApplicaion retrieve succfully.");
+		var app = loanApplicationService.getAllLoanApplicationsByRefundStatus();
+		var dto = loanApplicationMapper.toResponseList(app);
+		return ResponseUtil.ok(dto, "loanApplicaion retrieve successfully.");
 	}
 
 	@Operation(summary = "Get all loanApplication that Refund dept completed")
 	@GetMapping("refund-completed")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanApplicationRefundCompleted() {
-		List<LoanApplication> loanApplications = loanApplicationService.getAllLoanApplicationRefundCompleted();
-		List<LoanApplicationResponse> response = loanApplicationMapper.toResponseList(loanApplications);
-		return ResponseUtil.ok(response, "loanApplicaion refund completed retrieve successfully.");
+		var loanApplications = loanApplicationService.getAllLoanApplicationRefundCompleted();
+		var dto = loanApplicationMapper.toResponseList(loanApplications);
+		return ResponseUtil.ok(dto, "loanApplicaion refund completed retrieve successfully.");
 	}
 
 	@Operation(summary = "Retrieve all LoanApplicationResponse approved today")
 	@GetMapping("/approved-today")
 	public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanApplicationsApprovedToday() {
-		List<LoanApplication> applications = loanApplicationService.getAllLoanRecentUpdatedToday();
-		List<LoanApplicationResponse> response = loanApplicationMapper.toResponseList(applications);
-		return ResponseUtil.ok(response, "Approved loans for today retrieved successfully.");
+		var applications = loanApplicationService.getAllLoanRecentUpdatedToday();
+		var dto = loanApplicationMapper.toResponseList(applications);
+		return ResponseUtil.ok(dto, "Approved loans for today retrieved successfully.");
 	}
 
 	@GetMapping("/refund-in-progress")
@@ -196,8 +199,8 @@ public class LoanApplicationController {
 	public ResponseEntity<ApiResponse<PaginationDTO<LoanApplicationResponse>>> getAllLoanApplicationRefundInProgress(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size) {
-		PaginationDTO<LoanApplication> dto = loanApplicationService.getAllLoanApplicationRefundInProgress(page, size);
-		PaginationDTO<LoanApplicationResponse> response = loanApplicationMapper.toPaginationResponse(dto);
-		return ResponseUtil.ok(response, "loanApplicaion retrieve succfully.");
+		var listApp = loanApplicationService.getAllLoanApplicationRefundInProgress(page, size);
+		var dto = loanApplicationMapper.toPaginationResponse(listApp);
+		return ResponseUtil.ok(dto, "loanApplicaion retrieve successfully.");
 	}
 }
