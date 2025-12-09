@@ -35,8 +35,6 @@ public interface LoanApplicationService {
 
 	LoanApplication createNewLoanApplicationV2(LoanApplication loanApplication);
 
-	LoanApplication updateLoanApplicationStatus(Long applicationId, ApplicationStatus newStatus);
-
 	void approveLoanApplication(Long applicationId);
 
 	void rejectLoanApplication(Long applicationId);
@@ -45,7 +43,7 @@ public interface LoanApplicationService {
 
 	void deleteLoanApplicationById(Long applicationId);
 
-	List<LoanApplication> getAllApplicatonStatusPending();
+	List<LoanApplication> getAllApplicationStatusPending();
 
 	LoanApplication getLoanApplicationById(Long applicationId);
 

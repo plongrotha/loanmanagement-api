@@ -23,5 +23,4 @@ public class CacheConfig {
 						.maximumSize(1000).build());
 		return cacheManager;
 	}
-
 }

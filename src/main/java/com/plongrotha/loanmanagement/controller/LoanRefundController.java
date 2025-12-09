@@ -14,7 +14,6 @@ import com.plongrotha.loanmanagement.dto.request.LoanRefundRequest;
 import com.plongrotha.loanmanagement.dto.response.ApiResponse;
 import com.plongrotha.loanmanagement.dto.response.LoanfundResponse;
 import com.plongrotha.loanmanagement.mapper.LoanRefundMapper;
-import com.plongrotha.loanmanagement.model.LoanRefundRefund;
 import com.plongrotha.loanmanagement.service.LoanRefundRefundService;
 import com.plongrotha.loanmanagement.utils.ResponseUtil;
 
@@ -34,24 +33,26 @@ public class LoanRefundController {
 	@Operation(summary = "Get All Loan Application")
 	@GetMapping
 	public ResponseEntity<ApiResponse<List<LoanfundResponse>>> getAllLoanApplicationRefund() {
-		List<LoanRefundRefund> loanRefundRefunds = loanRefundRefundService.getAllLoans();
-		return ResponseUtil.ok(loanRefundMapper.toListResponse(loanRefundRefunds),
-				"all loanApplication refund retrived successfully");
+		var loanRefundRefunds = loanRefundRefundService.getAllLoans();
+		var dto = loanRefundMapper.toListResponse(loanRefundRefunds);
+		String message = dto.isEmpty() ? "No loanApplication refund records found"
+				: "all loanApplication refund retrived successfully";
+		return ResponseUtil.ok(dto, message);
 	}
 
 	@Operation(summary = "Create Loan Refund")
 	@PostMapping
 	public ResponseEntity<ApiResponse<LoanfundResponse>> createLoanRefund(
 			@RequestBody @Valid LoanRefundRequest request) {
-		LoanRefundRefund loanRefundRefund = loanRefundMapper.toEntity(request);
-		LoanRefundRefund saved = loanRefundRefundService.createRefund(loanRefundRefund);
+		var loanRefundRefund = loanRefundMapper.toEntity(request);
+		var saved = loanRefundRefundService.createRefund(loanRefundRefund);
 		return ResponseUtil.created(loanRefundMapper.toResponse(saved), "Loan Refund successfully.");
 	}
 
 	@Operation(summary = "Get a Refund by RefundId")
 	@GetMapping("/{refundId}")
 	public ResponseEntity<ApiResponse<LoanfundResponse>> getRefundById(@PathVariable @Positive Long refundId) {
-		LoanRefundRefund loanRefundRefund = loanRefundRefundService.getRefundById(refundId);
+		var loanRefundRefund = loanRefundRefundService.getRefundById(refundId);
 		return ResponseUtil.ok(loanRefundMapper.toResponse(loanRefundRefund),
 				"loan refund Id : " + refundId + " retrieved successfully");
 	}
@@ -60,8 +61,10 @@ public class LoanRefundController {
 	@GetMapping("/loan/{loanApplicationId}")
 	public ResponseEntity<ApiResponse<List<LoanfundResponse>>> getRefundsByLoanApplication(
 			@PathVariable @Positive Long loanApplicationId) {
-		List<LoanRefundRefund> refunds = loanRefundRefundService.getRefundsByLoanApplicationId(loanApplicationId);
-		List<LoanfundResponse> response = loanRefundMapper.toListResponse(refunds);
-		return ResponseUtil.ok(response, "list all Refund records retrieved successfully");
+		var refunds = loanRefundRefundService.getRefundsByLoanApplicationId(loanApplicationId);
+		var dto = loanRefundMapper.toListResponse(refunds);
+		String message = dto.isEmpty() ? "No Refund records found for Loan Application Id: " + loanApplicationId
+				: "List of Refund records for Loan Application Id: " + loanApplicationId + " retrieved successfully";
+		return ResponseUtil.ok(dto, message);
 	}
 }

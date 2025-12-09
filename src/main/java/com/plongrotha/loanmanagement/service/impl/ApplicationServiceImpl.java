@@ -33,9 +33,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Application getApplicationById(Long applicationId) {
-        if (applicationId == null || applicationId == 0)
-            throw new IllegalArgumentException("Application ID must not be null or zero");
-
         return applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application with ID " + applicationId + " not found"));
     }
@@ -54,8 +51,9 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public List<Application> getAllApplications() {
         List<Application> applications = applicationRepository.findAll();
-        if (applications.isEmpty())
-            throw new NotFoundException("No applications found");
-        return applications;
+        if (!applications.isEmpty()) {
+            return applications;
+        }
+        return List.of();
     }
 }

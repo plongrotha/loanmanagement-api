@@ -24,5 +24,5 @@ public class LoanfundResponse {
 	private LocalDateTime refundCompletedDate;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
-	
+
 }

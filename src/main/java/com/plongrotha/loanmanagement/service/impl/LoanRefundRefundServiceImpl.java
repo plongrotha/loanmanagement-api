@@ -56,7 +56,6 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		loanRefundRefund.setRefundInitiatedDate(LocalDateTime.now());
 		loanRefundRefund.setRefundRequestedDate(LocalDateTime.now());
 		loanRefundRefund.setUpdatedAt(LocalDateTime.now());
-		;
 		loanRefundRefund.setCreatedAt(LocalDateTime.now());
 
 		if (application.getLoanAmount().compareTo(application.getPaidAmount()) == 0) {
@@ -79,10 +78,10 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		getLoanApplicationById(loanApplicationId);
 		List<LoanRefundRefund> loanRefundRefunds = refundRepository
 				.findByLoanApplication_LoanApplicationId(loanApplicationId);
-		if (loanRefundRefunds.isEmpty()) {
-			throw new NotFoundException("have no refunded with loanAppliation Id : " + loanApplicationId);
+		if (!loanRefundRefunds.isEmpty()) {
+			return loanRefundRefunds;
 		}
-		return refundRepository.findByLoanApplication_LoanApplicationId(loanApplicationId);
+		return List.of();
 	}
 
 	@Override
