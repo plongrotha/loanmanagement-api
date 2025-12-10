@@ -13,8 +13,8 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("*")
+                .allowedHeaders("Content-Type")
                 .allowCredentials(true)
-                .maxAge(3600); // Cache preflight response for 1 hour
+                .maxAge(3600);
     }
 }

@@ -2,6 +2,8 @@ package com.plongrotha.loanmanagement.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -24,12 +26,18 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 	private final LoanApplicationRefundRepository refundRepository;
 	private final LoanApplicationRepository loanApplicationRepository;
 
+	// need to fix it not correct calculation
 	@Override
 	public LoanRefundRefund createRefund(LoanRefundRefund refund) {
 		LoanApplication application = loanApplicationRepository
 				.findById(refund.getLoanApplication().getLoanApplicationId())
 				.orElseThrow(() -> new NotFoundException("Loan Application with id "
 						+ refund.getLoanApplication().getLoanApplicationId() + " not found."));
+
+		// List<LoanRefundRefund> refunLists = refundRepository
+		// .findByLoanApplication_LoanApplicationId(application.getLoanApplicationId());
+		// LoanRefundRefund latestRefund = Collections.max(refunLists,
+		// Comparator.comparing(LoanRefundRefund::getUpdatedAt));
 
 		// update paid amount in loan application
 		if (application.getLoanRefundStatus() == LoanRefundStatus.COMPLETED) {
@@ -41,16 +49,26 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		}
 
 		BigDecimal paidAmount = application.getPaidAmount() == null ? BigDecimal.ZERO : application.getPaidAmount();
+		BigDecimal totalLoanAmount = application.getLoanAmount();
 
-		// and the i set the new value when deptor refund the money back to the owner
-		application.setPaidAmount(paidAmount.add(refund.getRefundAmount()));
+		// Calculate current remaining amount
+		BigDecimal currentRemainAmount = totalLoanAmount.subtract(paidAmount);
 
+		// Validate that refund amount doesn't exceed remaining amount
+		if (refund.getRefundAmount().compareTo(currentRemainAmount) > 0) {
+			throw new IllegalArgumentException("Refund amount (" + refund.getRefundAmount()
+					+ ") cannot exceed remaining loan amount (" + currentRemainAmount + ")");
+		}
+
+		// Update the cumulative paid amount
+		BigDecimal newPaidAmount = paidAmount.add(refund.getRefundAmount());
+		application.setPaidAmount(newPaidAmount);
+
+		// Set up the refund record
 		LoanRefundRefund loanRefundRefund = refund;
-		loanRefundRefund.setTotalLoanAmount(application.getLoanAmount());
-		loanRefundRefund.setPaidAmount(refund.getRefundAmount());
-
-		loanRefundRefund
-				.setRemainAmount(loanRefundRefund.getTotalLoanAmount().subtract(loanRefundRefund.getPaidAmount()));
+		loanRefundRefund.setTotalLoanAmount(totalLoanAmount);
+		loanRefundRefund.setPaidAmount(newPaidAmount); // This should be cumulative paid amount
+		loanRefundRefund.setRemainAmount(totalLoanAmount.subtract(newPaidAmount));
 		loanRefundRefund.setLoanApplication(application);
 
 		loanRefundRefund.setRefundInitiatedDate(LocalDateTime.now());
@@ -58,7 +76,8 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		loanRefundRefund.setUpdatedAt(LocalDateTime.now());
 		loanRefundRefund.setCreatedAt(LocalDateTime.now());
 
-		if (application.getLoanAmount().compareTo(application.getPaidAmount()) == 0) {
+		// Check if loan is fully paid
+		if (totalLoanAmount.compareTo(newPaidAmount) == 0) {
 			application.setLoanRefundStatus(LoanRefundStatus.COMPLETED);
 			loanRefundRefund.setRefundCompletedDate(LocalDateTime.now());
 		}
@@ -97,8 +116,9 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 	@Override
 	public List<LoanRefundRefund> getAllLoans() {
 		List<LoanRefundRefund> list = refundRepository.findAll();
-		if (list.isEmpty())
-			throw new NotFoundException("no have loanApplicatoins in database.");
+		if (list.isEmpty()) {
+			return List.of();
+		}
 		return list;
 	}
 
