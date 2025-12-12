@@ -17,6 +17,9 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
 	List<LoanApplication> findAllByApplicationStatus(ApplicationStatus applicationStatus);
 
 	void deleteByApplicationApplicationId(Long applicationId);
+	
+	@Query("SELECT la FROM LoanApplication la WHERE la.application.applicationId = :applicationId")
+	LoanApplication findByApplicationId(Long applicationId);
 
 	boolean existsByApplicationApplicationId(Long applicationLong);
 

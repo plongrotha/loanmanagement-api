@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class LoanApplicationResponse {
 
-	private ApplicationResponse applicationResponse;
 	private Long loanApplicationId;
 	private LoanType loanType;
 	private EmploymentStatus employmentStatus;
@@ -28,4 +27,5 @@ public class LoanApplicationResponse {
 	private String loanPurpose;
 	private int loanDurationInMonths;
 	private LocalDateTime updatedAt;
+	private ApplicationResponse applicationResponse;
 }
