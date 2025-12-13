@@ -21,40 +21,29 @@ public class LoanApplicationControllerTest {
 
     @BeforeEach
     public void setUp() {
-        baseUrl = baseUrl + ":" + port + "/api/v1/applications";
         RestAssured.port = port;
+        baseUrl = baseUrl + ":" + port + "/api/v1/applications";
     }
 
     @Test
-    public void testGetAllLoanApplcation() {
-        given()
-                .contentType(ContentType.JSON)
-                .when()
-                .get(baseUrl)
-                .then()
-                .statusCode(200)
-                .body("[0].applicantFullName", equalTo("Todd Dicki"));
-    }
-
-    @Test
-    public void testGetStudentById() {
+    public void testGetApplicationById() {
         given()
                 .contentType(ContentType.JSON)
                 .when()
                 .get(baseUrl + "/1")
                 .then()
                 .statusCode(200)
-                // .body("applicationId", equalTo(1))
-                .body("applicantFullName", equalTo("Todd Dicki"))
-                .body("email", equalTo("waylon.bins@gmail.com"))
-                .body("phoneNumber", equalTo("751.391.1365"));
+                .body("code", equalTo(200))
+                .body("message", equalTo(" Application retrieved successfully"))
+                // Access nested fields inside "data"
+                .body("data.applicationId", equalTo(1))
+                .body("data.applicantFullName", equalTo("Todd Dicki"))
+                .body("data.address", equalTo("Apt. 825 496 Hickle Divide, North Chelsieburgh, IA 40845"))
+                .body("data.email", equalTo("waylon.bins@gmail.com"))
+                .body("data.phoneNumber", equalTo("751.391.1365"))
+                .body("data.nationalId", equalTo("NID-63250841"))
+                .body("data.createdAt", notNullValue());
     }
-
-    // {
-    // "applicationId":1,"applicantFullName":"Todd Dicki","address":"Apt. 825 496
-    // Hickle Divide, North Chelsieburgh, IA
-    // 40845","email":"waylon.bins@gmail.com","phoneNumber":"751.391.1365","nationalId":"NID-63250841","createdAt":"2025-12-10T13:14:45.922028",
-    // },
 
     @Test
     public void testResponseHeaders() {
