@@ -45,11 +45,12 @@ public interface LoanApplicationService {
 
 	List<LoanApplication> getAllApplicationStatusPending();
 
-	LoanApplication getLoanApplicationById(Long applicationId);
+	LoanApplication getLoanApplicationById(Long loanApplicationId);
 
 	void deleteById(Long id);
 
 	List<LoanApplication> getAllLoanApplicationRefundCompleted();
 
 	List<LoanApplication> getAllLoanRecentUpdatedToday();
+
 }

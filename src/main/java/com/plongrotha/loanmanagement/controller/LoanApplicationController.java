@@ -76,7 +76,7 @@ public class LoanApplicationController {
         // call service to save application
         var savedApplication = loanApplicationService.createNewLoanApplicationV2(application);
         // and then return response to client by convert it from entity to response
-        return ResponseUtil.success(loanApplicationMapper.toResponse(savedApplication),
+        return ResponseUtil.created(loanApplicationMapper.toResponse(savedApplication),
                 "Loan application created successfully");
     }
 
@@ -128,11 +128,11 @@ public class LoanApplicationController {
         return ResponseUtil.success(dto, "Pending loan applications retrieved successfully");
     }
 
-    @GetMapping("/{applicationId}")
+    @GetMapping("/{loanApplicationById}")
     @Operation(summary = "Get loan application by ID")
     public ResponseEntity<ApiResponse<LoanApplicationResponse>> getLoanApplicationById(
-            @PathVariable @Positive Long applicationId) {
-        var app = loanApplicationService.getLoanApplicationById(applicationId);
+            @PathVariable @Positive Long loanApplicationById) {
+        var app = loanApplicationService.getLoanApplicationById(loanApplicationById);
         var dto = loanApplicationMapper.toResponse(app);
         return ResponseUtil.success(dto, "Loan application retrieved successfully");
     }

@@ -30,6 +30,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         existingApplication.setAddress(application.getAddress());
         existingApplication.setPhoneNumber(application.getPhoneNumber());
         existingApplication.setNationalId(application.getNationalId());
+        existingApplication.setEmail(application.getEmail());
         existingApplication.setApplicantFullName(application.getApplicantFullName());
         applicationRepository.save(existingApplication);
         return existingApplication;
@@ -48,12 +49,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         boolean hasByAppicationId = loanApplicationRepository.existsByApplicationApplicationId(applicationId);
         LoanApplication loanApplication = loanApplicationRepository.findByApplicationId(applicationId);
         if (hasByAppicationId) {
-        	if(loanApplication.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS) {
-        		throw new IllegalArgumentException("this application is not yet refund completed");
-        	}
+            if (loanApplication.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS) {
+                throw new IllegalArgumentException("this application is not yet refund completed");
+            }
             loanApplicationRepository.deleteById(applicationId);
         }
-        
+
         // when loan
         Application existingApplication = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application with ID " + applicationId + " not found"));

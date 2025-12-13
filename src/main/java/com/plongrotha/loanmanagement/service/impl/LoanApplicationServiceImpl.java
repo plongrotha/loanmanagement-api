@@ -138,9 +138,10 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 
 	// get loan application by id
 	@Override
-	public LoanApplication getLoanApplicationById(Long applicationId) {
-		return loanApplicationRepository.findById(applicationId)
-				.orElseThrow(() -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
+	public LoanApplication getLoanApplicationById(Long loanApplicationId) {
+		return loanApplicationRepository.findById(loanApplicationId)
+				.orElseThrow(() -> new NotFoundException(
+						"Loan application with ID " + loanApplicationId + " not found"));
 	}
 
 	// get all the the ApplicationStatus enumeration value
