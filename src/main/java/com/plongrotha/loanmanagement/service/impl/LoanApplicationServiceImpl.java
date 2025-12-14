@@ -25,6 +25,7 @@ import com.plongrotha.loanmanagement.repository.ApplicationRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanApplicationService;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -122,6 +123,9 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		// find the loanApplication is have in the database
 		LoanApplication application = loanApplicationRepository.findById(applicationId)
 				.orElseThrow(() -> new NotFoundException("Loan application with ID " + applicationId + " not found"));
+		if (application.getApplicationStatus() == ApplicationStatus.APPROVED) {
+			throw new ConflictException("This application is approve already");
+		}
 		if (application.getApplicationStatus() == ApplicationStatus.PENDING) {
 			application.setApplicationStatus(ApplicationStatus.APPROVED);
 			application.setLoanRefundStatus(LoanRefundStatus.IN_PROGRESS);
@@ -237,9 +241,9 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	// at here i can add the parameter if i need to filter by choosing type but now
 	// get all with in progress status
 	@Override
-	public List<LoanApplication> getAllLoanApplicationsByRefundStatus() {
+	public List<LoanApplication> getAllLoanApplicationsByRefundStatus(LoanRefundStatus refundStatus) {
 		List<LoanApplication> loanApplications = loanApplicationRepository.findAll();
-		return loanApplications.stream().filter(loan -> loan.getLoanRefundStatus() == LoanRefundStatus.IN_PROGRESS)
+		return loanApplications.stream().filter(loan -> loan.getLoanRefundStatus() == refundStatus)
 				.toList();
 	}
 

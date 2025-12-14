@@ -5,6 +5,7 @@ import java.util.List;
 import com.plongrotha.loanmanagement.dto.response.PaginationDTO;
 import com.plongrotha.loanmanagement.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.enums.EmploymentStatus;
+import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.enums.LoanType;
 import com.plongrotha.loanmanagement.model.LoanApplication;
 
@@ -25,7 +26,7 @@ public interface LoanApplicationService {
 
 	List<LoanApplication> getAllLoanApplicationsByStatus(ApplicationStatus status);
 
-	List<LoanApplication> getAllLoanApplicationsByRefundStatus();
+	List<LoanApplication> getAllLoanApplicationsByRefundStatus(LoanRefundStatus refundStatus);
 
 	List<LoanApplication> getAllLoanApplicationsByEmploymentStatus(EmploymentStatus employmentStatus);
 

@@ -1,4 +1,4 @@
-package com.plongrotha.loanmanagement.applicationServiceTest;
+package com.plongrotha.loanmanagement.testcase;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -88,4 +88,5 @@ public class ApplicationControllerTest {
                 .body("data.nationalId", equalTo("NID-63250841"))
                 .body("data.createdAt", notNullValue());
     }
+
 }
