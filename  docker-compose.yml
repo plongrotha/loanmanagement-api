@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-loan
+    environment:
+      MYSQL_ROOT_PASSWORD: 9787
+      MYSQL_DATABASE: loanmanagement
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - loan-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: loan-app
+    ports:
+      - "9090:9090"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/loanmanagement
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 9787
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - loan-network
+
+volumes:
+  mysql_data:
+
+networks:
+  loan-network:

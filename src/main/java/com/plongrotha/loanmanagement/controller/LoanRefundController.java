@@ -46,7 +46,7 @@ public class LoanRefundController {
 			@RequestBody @Valid LoanRefundRequest request) {
 		var loanRefundRefund = loanRefundMapper.toEntity(request);
 		var saved = loanRefundRefundService.createRefund(loanRefundRefund);
-		return ResponseUtil.created(loanRefundMapper.toResponse(saved), "Loan Refund successfully.");
+		return ResponseUtil.created(loanRefundMapper.toResponse(saved), "Loan Refund is created successfully.");
 	}
 
 	@Operation(summary = "Get a Refund by RefundId")

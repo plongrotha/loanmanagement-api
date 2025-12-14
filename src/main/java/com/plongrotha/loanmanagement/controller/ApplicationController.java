@@ -45,7 +45,7 @@ public class ApplicationController {
             @PathVariable @Positive Long applicationId) {
         var app = applicationService.getApplicationById(applicationId);
         var dto = loanApplicationMapper.toApplicationResponse(app);
-        return ResponseUtil.success(dto, " Application retrieved successfully");
+        return ResponseUtil.success(dto, "Application retrieved successfully");
     }
 
     @Operation(summary = "Update application by ID")

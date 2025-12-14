@@ -7,8 +7,13 @@ spring:
     url: jdbc:mysql://localhost:3306/loanmanagement
     username: root
     password: 9787
-  #  driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+server:
+  port: 8080
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
