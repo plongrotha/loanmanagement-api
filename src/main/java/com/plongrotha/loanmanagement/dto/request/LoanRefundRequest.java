@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class LoanRefundRequest {
 
 	@NotNull(message = "loanApplicationId can not be null")
+	@Positive(message = "no have loanApplicationId is negative or zero")
 	private Long loanApplicationId;
 
 	@Positive(message = "refundAmount must be positive and greater than 0")

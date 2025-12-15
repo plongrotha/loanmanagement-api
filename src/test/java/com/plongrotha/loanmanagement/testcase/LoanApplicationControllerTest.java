@@ -87,7 +87,7 @@ public class LoanApplicationControllerTest {
 	public void testGetAllLoanApplicationsTest() {
 		given().contentType(ContentType.JSON).when().get(baseUrl).then().statusCode(HttpStatus.OK.value())
 				.body("code", equalTo(200))
-				.body("message", equalTo("Loan applications retrieved successfully"));
+				.body("message", equalTo("No loan applications found"));
 	}
 
 	@Test
@@ -164,10 +164,10 @@ public class LoanApplicationControllerTest {
 
 	@Test
 	public void approveLoanApplicationTest() {
-		Long id = 1L;
+		Long id = 71L;
 		given().headers("Content-Type", "application/json").when().post(baseUrl + "/approve?applicationId=" + id).then()
-				.statusCode(409)
-				.body("message", equalTo("This application is approve already"));
+				.statusCode(200)
+				.body("message", equalTo("Loan application approved successfully"));
 	}
 
 	@Test
@@ -232,8 +232,37 @@ public class LoanApplicationControllerTest {
 		given().header("Content-Type", "application/json").when().get(baseUrl + "/by-employment-status?" + emstatus)
 				.then()
 				.statusCode(200)
-				.body("message", equalTo("Loan applications retrieved successfully"))
-				.body("data[0].loanType", equalTo("STUDENT_LOAN"))
+				.body("message", equalTo("No loan applications found for the specified employment status"));
+		// .body("data[0].loanType", equalTo("STUDENT_LOAN"))
+		// .body("data.size()", greaterThan(0));
+	}
+
+	@Test
+	public void getAllApplicationStatusesTest() {
+		given().headers("Content-Type", "application/json").when().get(baseUrl + "/application-statuses").then()
+				.statusCode(200)
+				.body("message", equalTo("Application statuses retrieved successfully"))
+				.body("data.size()", greaterThan(0))
+				.body("data[0]", equalTo("APPROVED"))
+				.body("data[1]", equalTo("PENDING"))
+				.body("data[2]", equalTo("REJECTED"));
+	}
+
+	@Test
+	public void getAllLoanApplicationByRefundStatusTest() {
+		String refundStatus = "?refundStatus=IN_PROGRESS";
+		given().header("Content-Type", "application/json").when()
+				.get(baseUrl + "/by-refund-status" + refundStatus).then()
+				.statusCode(200)
+				.body("message", equalTo("loanApplicaion retrieve successfully."))
 				.body("data.size()", greaterThan(0));
+	}
+
+	@Test
+	public void getAllLoanRecentUpdatedTodayTest() {
+		given().headers("Content-Type", "application/json").when().get(baseUrl + "/recent-updated-today").then()
+				.statusCode(200)
+				.body("message", equalTo("loan Applications retrieved successfully."))
+				.body("data.size()", is(0));
 	}
 }

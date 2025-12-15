@@ -183,12 +183,12 @@ public class LoanApplicationController {
         return ResponseUtil.ok(dto, "loanApplicaion refund completed retrieve successfully.");
     }
 
-    @Operation(summary = "Retrieve all LoanApplicationResponse approved today")
-    @GetMapping("/approved-today")
-    public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanApplicationsApprovedToday() {
+    @Operation(summary = "Retrieve all LoanApplicationResponse recent updated today")
+    @GetMapping("/recent-updated-today")
+    public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanRecentUpdatedToday() {
         var applications = loanApplicationService.getAllLoanRecentUpdatedToday();
         var dto = loanApplicationMapper.toResponseList(applications);
-        return ResponseUtil.ok(dto, "Approved loans for today retrieved successfully.");
+        return ResponseUtil.ok(dto, "loan Applications retrieved successfully.");
     }
 
     @GetMapping("/refund-in-progress")

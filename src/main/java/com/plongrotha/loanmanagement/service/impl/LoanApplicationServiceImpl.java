@@ -25,7 +25,6 @@ import com.plongrotha.loanmanagement.repository.ApplicationRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanApplicationService;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -210,6 +209,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		newLoan.setLoanDurationInMonths(loanApplication.getLoanDurationInMonths());
 		newLoan.setLoanPurpose(loanApplication.getLoanPurpose());
 		newLoan.setCreatedAt(LocalDateTime.now());
+		newLoan.setUpdatedAt(LocalDateTime.now());
 		return loanApplicationRepository.save(newLoan);
 	}
 

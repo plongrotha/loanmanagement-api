@@ -2,8 +2,6 @@ package com.plongrotha.loanmanagement.service.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -63,6 +61,7 @@ public class LoanRefundRefundServiceImpl implements LoanRefundRefundService {
 		// Update the cumulative paid amount
 		BigDecimal newPaidAmount = paidAmount.add(refund.getRefundAmount());
 		application.setPaidAmount(newPaidAmount);
+		application.setUpdatedAt(LocalDateTime.now());
 
 		// Set up the refund record
 		LoanRefundRefund loanRefundRefund = refund;
