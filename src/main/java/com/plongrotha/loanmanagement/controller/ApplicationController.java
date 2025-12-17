@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,6 +38,16 @@ public class ApplicationController {
     public ResponseEntity<ApiResponse<Void>> deleteApplication(@PathVariable @Positive Long applicationId) {
         applicationService.deleteApplication(applicationId);
         return ResponseUtil.success("Application deleted successfully");
+    }
+
+    @Operation(summary = "Create a new application")
+    @PostMapping
+    public ResponseEntity<ApiResponse<ApplicationResponse>> createApplication(
+            @RequestBody ApplicationRequest request) {
+        var application = loanApplicationMapper.toApplicationEntity(request);
+        var dto = applicationService.createApplication(application);
+        return ResponseUtil.success(loanApplicationMapper.toApplicationResponse(dto),
+                "Application created successfully");
     }
 
     @Operation(summary = "Get application by ID")

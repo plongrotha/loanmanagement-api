@@ -14,4 +14,8 @@ public interface ApplicationService {
 
     List<Application> getAllApplications();
 
+    Application createApplication(Application application);
+
+    Application getApplicationsByNationalId(String nationalId);
+
 }

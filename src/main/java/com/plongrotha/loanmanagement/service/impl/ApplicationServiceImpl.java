@@ -2,6 +2,7 @@ package com.plongrotha.loanmanagement.service.impl;
 
 import java.util.List;
 
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,18 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final LoanApplicationRepository loanApplicationRepository;
+    private final CacheManager cacheManager;
+
+    @Override
+    public Application createApplication(Application application) {
+        return applicationRepository.save(application);
+    }
+
+    // create for test purpose
+    @Override
+    public Application getApplicationsByNationalId(String nationalId) {
+        return null;
+    }
 
     @Override
     public Application updateApplication(Long applicationId, Application application) {
@@ -36,14 +49,14 @@ public class ApplicationServiceImpl implements ApplicationService {
         return existingApplication;
     }
 
-    @Cacheable(value = "loan", key = "#applicationId")
+    // @Cacheable(value = "applicant", key = "#applicationId")
     @Override
     public Application getApplicationById(Long applicationId) {
         return applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new NotFoundException("Application with ID " + applicationId + " not found"));
     }
 
-    @CacheEvict(value = "loan", key = "#applicationId")
+    @CacheEvict(value = "applicant", key = "#applicationId")
     @Override
     public void deleteApplication(Long applicationId) {
         boolean hasByAppicationId = loanApplicationRepository.existsByApplicationApplicationId(applicationId);

@@ -18,7 +18,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 @Entity
 @Table(name = "applications")
 @Data
@@ -37,13 +36,13 @@ public class Application {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
-    @Column(name = "phone_number")
+    @Column(name = "phone_number", unique = true)
     private String phoneNumber;
 
-    @Column(name = "national_id")
+    @Column(name = "national_id", unique = true)
     private String nationalId;
 
     @Column(name = "created_at")

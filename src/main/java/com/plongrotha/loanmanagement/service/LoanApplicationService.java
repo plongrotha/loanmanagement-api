@@ -54,4 +54,6 @@ public interface LoanApplicationService {
 
 	List<LoanApplication> getAllLoanRecentUpdatedToday();
 
+	LoanApplication getLoanApplicationByNationalID(String nationalId);
+
 }

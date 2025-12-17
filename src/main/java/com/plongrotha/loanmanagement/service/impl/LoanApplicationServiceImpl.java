@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import javax.swing.plaf.ColorUIResource;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -17,6 +20,7 @@ import com.plongrotha.loanmanagement.enums.ApplicationStatus;
 import com.plongrotha.loanmanagement.enums.EmploymentStatus;
 import com.plongrotha.loanmanagement.enums.LoanRefundStatus;
 import com.plongrotha.loanmanagement.enums.LoanType;
+import com.plongrotha.loanmanagement.exception.BadRequestException;
 import com.plongrotha.loanmanagement.exception.ConflictException;
 import com.plongrotha.loanmanagement.exception.NotFoundException;
 import com.plongrotha.loanmanagement.model.Application;
@@ -24,13 +28,17 @@ import com.plongrotha.loanmanagement.model.LoanApplication;
 import com.plongrotha.loanmanagement.repository.ApplicationRepository;
 import com.plongrotha.loanmanagement.repository.LoanApplicationRepository;
 import com.plongrotha.loanmanagement.service.LoanApplicationService;
+import com.plongrotha.loanmanagement.utils.ColorUtil;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoanApplicationServiceImpl implements LoanApplicationService {
 
+	public static final Logger logger = Logger.getLogger(LoanApplicationServiceImpl.class.getName());
 	private final LoanApplicationRepository loanApplicationRepository;
 	private final ApplicationRepository applicationRepository;
 	private final Faker faker = new Faker();
@@ -41,6 +49,7 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		if (loanTypes.isEmpty()) {
 			return List.of();
 		}
+		logger.info(ColorUtil.BOLD_GREEN + "This is AllLoanTypes : " + ColorUtil.RESET + loanTypes);
 		return loanTypes;
 	}
 
@@ -62,11 +71,23 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		return loanApplications;
 	}
 
+	@Override
+	public LoanApplication getLoanApplicationByNationalID(String nationalId) {
+		LoanApplication loanApplication = loanApplicationRepository.findByNationalID(nationalId);
+		if (loanApplication == null) {
+			logger.info(ColorUtil.BOLD_RED + "Loan application with National ID {} not found : " + ColorUtil.RESET
+					+ nationalId);
+			throw new NotFoundException("Loan application with National ID " + nationalId + " not found");
+		}
+		return loanApplication;
+	}
+
 	// create loan application v1
 	@Override
 	public LoanApplication createNewLoanApplication(LoanApplication loanApplication) {
 		Application incomingApp = loanApplication.getApplication();
 		if (incomingApp == null) {
+			logger.info(ColorUtil.BOLD_RED + "Application (applicant info) cannot be null" + ColorUtil.RESET);
 			throw new IllegalArgumentException("Application (applicant info) cannot be null");
 		}
 		// Create new Application entity from incoming data
@@ -136,7 +157,12 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	// get all the value from the enumeration
 	@Override
 	public List<LoanApplication> getAllApplicationStatusPending() {
-		return loanApplicationRepository.findAllByApplicationStatus(ApplicationStatus.PENDING);
+		List<LoanApplication> loanApplications = loanApplicationRepository
+				.findAllByApplicationStatus(ApplicationStatus.PENDING);
+		if (loanApplications.isEmpty()) {
+			return List.of();
+		}
+		return loanApplications;
 	}
 
 	// get loan application by id
@@ -193,9 +219,17 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 		Application newApplication = new Application();
 		newApplication.setAddress(incomingApp.getAddress());
 		newApplication.setApplicantFullName(incomingApp.getApplicantFullName());
+		boolean nationalIdExists = applicationRepository.exiexistsByNationalId(incomingApp.getNationalId());
+		if (nationalIdExists) {
+			throw new BadRequestException("An application with the provided national ID already exists.");
+		}
 		newApplication.setNationalId(incomingApp.getNationalId());
 		newApplication.setPhoneNumber(incomingApp.getPhoneNumber());
 		newApplication.setUpdatedAt(LocalDateTime.now());
+		boolean emailExists = applicationRepository.existsByEmail(incomingApp.getEmail());
+		if (emailExists) {
+			throw new BadRequestException("An application with the provided email already exists.");
+		}
 		newApplication.setEmail(incomingApp.getEmail());
 
 		applicationRepository.save(newApplication);
@@ -261,8 +295,8 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	// get all loan recently updated today
 	@Override
 	public List<LoanApplication> getAllLoanRecentUpdatedToday() {
-		List<LoanApplication> applications = loanApplicationRepository.findAll().stream()
-				.filter(app -> app.getUpdatedAt().toLocalDate().equals(LocalDate.now())).collect(Collectors.toList());
+		List<LoanApplication> applications = loanApplicationRepository.getLoanApplicationThatRecentUpdateToday(
+				LocalDate.now());
 		if (applications.isEmpty()) {
 			return List.of();
 		}

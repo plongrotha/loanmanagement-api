@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(DataIntegrityViolationException.class)
 	public ProblemDetail handleDataIntegrityViolation(DataIntegrityViolationException ex) {
-//		logger.error("Data integrity violation occurred", ex);
+		// logger.error("Data integrity violation occurred", ex);
 
 		ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT,
 				determineUserFriendlyMessage(ex));
@@ -153,6 +153,15 @@ public class GlobalExceptionHandler {
 																								// errors
 		));
 
+		return problemDetail;
+	}
+
+	@ExceptionHandler(BadRequestException.class)
+	public ProblemDetail handleBadRequestException(BadRequestException ex) {
+		ProblemDetail problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+		problemDetail.setTitle("Bad Request");
+		problemDetail.setDetail(ex.getMessage());
+		problemDetail.setProperty("timestamp", Instant.now());
 		return problemDetail;
 	}
 

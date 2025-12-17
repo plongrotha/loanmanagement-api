@@ -87,16 +87,24 @@ public class LoanApplicationController {
         return ResponseUtil.success(dto, "Loan applications retrieved successfully");
     }
 
+    @Operation(summary = "Get loan application by National ID")
+    @GetMapping("/by-national-id")
+    public ResponseEntity<ApiResponse<LoanApplicationResponse>> getLoanApplicationByNationalID(
+            @RequestParam String nationalId) {
+        var loanApplication = loanApplicationService.getLoanApplicationByNationalID(nationalId);
+        var dto = loanApplicationMapper.toResponse(loanApplication);
+        return ResponseUtil.success(dto, "Loan application retrieved successfully");
+    }
+
     @Operation(summary = "Get loan applications by employment status")
     @GetMapping("/by-employment-status")
     public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getLoanApplicationsByEmploymentStatus(
             @RequestParam EmploymentStatus employmentStatus) {
         var loanApplications = loanApplicationService.getAllLoanApplicationsByEmploymentStatus(employmentStatus);
         var dto = loanApplicationMapper.toResponseList(loanApplications);
-        if (loanApplications.isEmpty()) {
-            return ResponseUtil.success(List.of(), "No loan applications found for the specified employment status");
-        }
-        return ResponseUtil.success(dto, "Loan applications retrieved successfully");
+        String message = dto.isEmpty() ? "No loan applications found for the specified employment status"
+                : "Loan applications retrieved successfully";
+        return ResponseUtil.success(dto, message);
     }
 
     @Operation(summary = "Get loan applications by status")

@@ -17,6 +17,9 @@ public class CacheConfig {
 		CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 		cacheManager.registerCustomCache("loan",
 				Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).maximumSize(1000).build());
+
+		cacheManager.registerCustomCache("app",
+				Caffeine.newBuilder().expireAfterWrite(30, TimeUnit.MINUTES).maximumSize(1000).build());
 		return cacheManager;
 	}
 }
