@@ -39,18 +39,12 @@ public class LoanApplicationServiceImpl implements LoanApplicationService {
 	@Override
 	public List<LoanType> getAllLoanTypes() {
 		List<LoanType> loanTypes = List.of(LoanType.values());
-		if (loanTypes.isEmpty()) {
-			return List.of();
-		}
 		return loanTypes;
 	}
 
 	@Override
 	public List<EmploymentStatus> getAllEmploymentStatuses() {
 		List<EmploymentStatus> employmentStatuses = List.of(EmploymentStatus.values());
-		if (employmentStatuses.isEmpty()) {
-			return List.of();
-		}
 		return employmentStatuses;
 	}
 
